@@ -50,6 +50,7 @@ export class NovoFormControl extends FormControl {
   textMaskEnabled?: boolean;
   maskOptions: IMaskOptions;
   allowInvalidDate?: boolean;
+  currencyFormat?: string;
   tipWell?: {
     tip: string;
     icon?: string;
@@ -98,6 +99,7 @@ export class NovoFormControl extends FormControl {
     this.textMaskEnabled = control.textMaskEnabled;
     this.maskOptions = control.maskOptions;
     this.allowInvalidDate = control.allowInvalidDate;
+    this.currencyFormat = control.currencyFormat;
     this.maxlength = control.maxlength;
     this.minlength = control.minlength;
     this.closeOnSelect = control.closeOnSelect;
