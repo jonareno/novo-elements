@@ -43,6 +43,7 @@ export { UnlessModule } from './elements/unless/Unless.module';
 export { NovoDataTableModule } from './elements/data-table/data-table.module';
 export { RemoteDataTableService } from './elements/data-table/services/remote-data-table.service';
 export { StaticDataTableService } from './elements/data-table/services/static-data-table.service';
+export { NovoNumberTextBoxModule } from './elements/number-textbox/NumberTextBox.module';
 export {
   IDataTableCell,
   IDataTableChangeEvent,

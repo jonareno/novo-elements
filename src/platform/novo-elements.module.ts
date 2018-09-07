@@ -56,6 +56,7 @@ import { LocalStorageService } from './services/storage/storage.service';
 import { ComponentUtils } from './utils/component-utils/ComponentUtils';
 import { FormUtils } from './utils/form-utils/FormUtils';
 import { OptionsService } from './services/options/OptionsService';
+import { NovoNumberTextBoxModule } from './elements/number-textbox/NumberTextBox.module';
 
 import { NovoCommonModule } from './elements/common/common.module';
 
@@ -108,6 +109,7 @@ import { NovoCommonModule } from './elements/common/common.module';
     NovoCommonModule,
     NovoStepperModule,
     ScrollDispatchModule,
+    NovoNumberTextBoxModule,
   ],
   providers: [
     { provide: ComponentUtils, useClass: ComponentUtils },
@@ -121,4 +123,4 @@ import { NovoCommonModule } from './elements/common/common.module';
     { provide: FormUtils, useClass: FormUtils },
   ],
 })
-export class NovoElementsModule { }
+export class NovoElementsModule {}

@@ -50,7 +50,6 @@ export class NovoFormControl extends FormControl {
   textMaskEnabled?: boolean;
   maskOptions: IMaskOptions;
   allowInvalidDate?: boolean;
-  currencyFormat?: string;
   tipWell?: {
     tip: string;
     icon?: string;

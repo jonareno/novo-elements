@@ -31,6 +31,7 @@ import { NovoControlGroup } from './ControlGroup';
 import { NovoControlTemplates } from './ControlTemplates';
 import { NovoTemplateService } from './../../services/template/NovoTemplateService';
 import { NovoCommonModule } from '../common/common.module';
+import { NovoNumberTextBoxModule } from './../number-textbox/NumberTextBox.module';
 
 @NgModule({
   imports: [
@@ -56,20 +57,30 @@ import { NovoCommonModule } from '../common/common.module';
     NovoButtonModule,
     NovoAceEditorModule,
     NovoCommonModule,
+    NovoNumberTextBoxModule,
   ],
   declarations: [
-    NovoAutoSize, NovoControlElement, NovoDynamicFormElement, NovoFormElement,
-    NovoFieldsetElement, NovoFieldsetHeaderElement,
-    ControlConfirmModal, ControlPromptModal, NovoControlGroup, NovoControlTemplates
+    NovoAutoSize,
+    NovoControlElement,
+    NovoDynamicFormElement,
+    NovoFormElement,
+    NovoFieldsetElement,
+    NovoFieldsetHeaderElement,
+    ControlConfirmModal,
+    ControlPromptModal,
+    NovoControlGroup,
+    NovoControlTemplates,
   ],
   exports: [
-    NovoAutoSize, NovoDynamicFormElement, NovoControlElement, NovoFormElement,
+    NovoAutoSize,
+    NovoDynamicFormElement,
+    NovoControlElement,
+    NovoFormElement,
     NovoFieldsetHeaderElement,
     NovoControlGroup,
-    NovoControlTemplates
+    NovoControlTemplates,
   ],
   entryComponents: [ControlConfirmModal, ControlPromptModal],
-  providers: [NovoTemplateService]
+  providers: [NovoTemplateService],
 })
-export class NovoFormModule {
-}
+export class NovoFormModule {}
