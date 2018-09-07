@@ -119,7 +119,7 @@ export class FormDemoComponent {
   private emailControl: any;
   private numberControl: any;
   private currencyControl: any;
-  private currencyControlEUR: any;
+  private currencyControlEuro: any;
   private aceEditorControl: any;
   private floatControl: any;
   private percentageControl: any;
@@ -243,9 +243,9 @@ export class FormDemoComponent {
       currencyFormat: 'USD',
       config: this.currencyConfig,
     });
-    this.currencyControlEUR = new TextBoxControl({
+    this.currencyControlEuro = new TextBoxControl({
       type: 'currency',
-      key: 'currencyEUR',
+      key: 'currencyEuro',
       tooltip: 'Currency EUR',
       label: 'Currency EUR',
       currencyFormat: 'EUR',
@@ -273,7 +273,7 @@ export class FormDemoComponent {
       this.textAreaControl,
       this.numberControl,
       this.currencyControl,
-      this.currencyControlEUR,
+      this.currencyControlEuro,
       this.floatControl,
       this.percentageControl,
       this.quickNoteControl,
