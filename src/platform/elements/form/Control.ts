@@ -155,15 +155,24 @@ export class NovoAutoSize implements AfterContentInit {
   },
 })
 export class NovoControlElement extends OutsideClick implements OnInit, OnDestroy, AfterViewInit, AfterContentInit {
-  @Input() control: any;
-  @Input() form: any;
-  @Input() condensed: boolean = false;
-  @Input() autoFocus: boolean = false;
-  @Output() change: EventEmitter<any> = new EventEmitter();
-  @Output() edit: EventEmitter<any> = new EventEmitter();
-  @Output() save: EventEmitter<any> = new EventEmitter();
-  @Output() delete: EventEmitter<any> = new EventEmitter();
-  @Output() upload: EventEmitter<any> = new EventEmitter();
+  @Input()
+  control: any;
+  @Input()
+  form: any;
+  @Input()
+  condensed: boolean = false;
+  @Input()
+  autoFocus: boolean = false;
+  @Output()
+  change: EventEmitter<any> = new EventEmitter();
+  @Output()
+  edit: EventEmitter<any> = new EventEmitter();
+  @Output()
+  save: EventEmitter<any> = new EventEmitter();
+  @Output()
+  delete: EventEmitter<any> = new EventEmitter();
+  @Output()
+  upload: EventEmitter<any> = new EventEmitter();
   @Output('blur')
   get onBlur(): Observable<FocusEvent> {
     return this._blurEmitter.asObservable();
@@ -326,10 +335,8 @@ export class NovoControlElement extends OutsideClick implements OnInit, OnDestro
     this.templateContext = {
       $implicit: this.form.controls[this.control.key],
       methods: {
-        restrictKeys: this.restrictKeys.bind(this),
         emitChange: this.emitChange.bind(this),
         handleFocus: this.handleFocus.bind(this),
-        handlePercentChange: this.handlePercentChange.bind(this),
         handleBlur: this.handleBlur.bind(this),
         handleTextAreaInput: this.handleTextAreaInput.bind(this),
         handleEdit: this.handleEdit.bind(this),
@@ -524,7 +531,6 @@ export class NovoControlElement extends OutsideClick implements OnInit, OnDestro
 
   handleTextAreaInput(event) {
     this.emitChange(event);
-    this.restrictKeys(event);
   }
 
   checkMaxLength(event) {
@@ -549,38 +555,6 @@ export class NovoControlElement extends OutsideClick implements OnInit, OnDestro
       this._enteredText = '';
     }
     this.change.emit(value);
-  }
-
-  restrictKeys(event) {
-    const NUMBERS_ONLY = /[0-9\-]/;
-    const NUMBERS_WITH_DECIMAL = /[0-9\.\-]/;
-    const UTILITY_KEYS = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'];
-    let key = event.key;
-    // Types
-    if (this.form.controls[this.control.key].subType === 'number' && !(NUMBERS_ONLY.test(key) || UTILITY_KEYS.includes(key))) {
-      event.preventDefault();
-    } else if (
-      ~['currency', 'float', 'percentage'].indexOf(this.form.controls[this.control.key].subType) &&
-      !(NUMBERS_WITH_DECIMAL.test(key) || UTILITY_KEYS.includes(key))
-    ) {
-      event.preventDefault();
-    }
-    // Max Length
-    if (this.form.controls[this.control.key].maxlength && event.target.value.length >= this.form.controls[this.control.key].maxlength) {
-      event.preventDefault();
-    }
-  }
-
-  handlePercentChange(event: KeyboardEvent) {
-    let value = event.target['value'];
-    let percent = Helpers.isEmpty(value) ? null : Number((value / 100).toFixed(6).replace(/\.?0*$/, ''));
-    if (!Helpers.isEmpty(percent)) {
-      this.change.emit(percent);
-      this.form.controls[this.control.key].setValue(percent);
-    } else {
-      this.change.emit(null);
-      this.form.controls[this.control.key].setValue(null);
-    }
   }
 
   handleTabForPickers(event: any): void {
