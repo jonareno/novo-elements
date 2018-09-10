@@ -1,5 +1,5 @@
 // NG
-import { Component, Input, ViewChild, forwardRef, ElementRef, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
+import { Component, Input, ViewChild, forwardRef, ElementRef, ChangeDetectorRef, NgZone } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 // App
 import { NovoLabelService } from '../../services/novo-label-service';
@@ -16,12 +16,13 @@ const NUMBER_TEXTBOX_VALUE_ACCESSOR = {
   selector: 'novo-number-textbox',
   providers: [NUMBER_TEXTBOX_VALUE_ACCESSOR],
   template: `
-    <input *ngIf="subType !== 'percentage'" type="text" [attr.name]="name" (keydown)="_handleKeydown($event)" (input)="_handleInput($event)" #input data-automation-id="novo-number-textbox-input"/>
+    <input *ngIf="subType !== 'percentage'" type="text" [attr.name]="name" (keydown)="_handleKeydown($event)" 
+      (input)="_handleInput($event)" step="any" (mousewheel)="numberInput.blur()" #input data-automation-id="novo-number-textbox-input"/>
     <input *ngIf="subType === 'percentage'" type="text" [attr.name]="name" (keydown)="_handleKeydown($event)" 
       (input)="_handleInput($event, true)" [placeholder]="placeholder" step="any" (mousewheel)="percentInput.blur()" #percentInput data-automation-id="novo-number-textbox-input"/>
   `,
 })
-export class NovoNumberTextBoxElement implements ControlValueAccessor, OnInit {
+export class NovoNumberTextBoxElement implements ControlValueAccessor {
   @Input()
   config: any;
   @Input()
@@ -35,8 +36,8 @@ export class NovoNumberTextBoxElement implements ControlValueAccessor, OnInit {
   @Input()
   value: number;
 
-  decimalPoint: string = '.'; // defaults to a period
-  numbersWithDecimalRegex: any;
+  private _decimalPoint: string = '.'; // defaults to period
+  private numbersWithDecimalRegex: any;
 
   /** View -> model callback called when value changes */
   _onChange: (value: any) => void = () => {};
@@ -55,13 +56,6 @@ export class NovoNumberTextBoxElement implements ControlValueAccessor, OnInit {
     private ngZone: NgZone,
   ) {}
 
-  ngOnInit() {
-    if (this.config && this.config.decimalPoint) {
-      this.decimalPoint = this.config.decimalPoint;
-    }
-    this.numbersWithDecimalRegex = new RegExp('[0-9\\' + this.decimalPoint + ']');
-  }
-
   _handleKeydown(event: KeyboardEvent): void {
     this.restrictKeys(event);
   }
@@ -72,7 +66,7 @@ export class NovoNumberTextBoxElement implements ControlValueAccessor, OnInit {
       if (isPercent) {
         this._handlePercentInput(value);
       } else {
-        this._setValue(this.parseNumber(value), value);
+        this._setValue(this.replaceDecimalPointAndParse(this.decimalPoint, value), value);
       }
     }
   }
@@ -102,7 +96,7 @@ export class NovoNumberTextBoxElement implements ControlValueAccessor, OnInit {
     this._onTouched = fn;
   }
 
-  private _setValue(value: number, displayValue: any) {
+  private _setValue(value: any, displayValue: any) {
     this.value = value;
     this._onChange(this.value);
     if (this.input && this.input.nativeElement) {
@@ -113,7 +107,7 @@ export class NovoNumberTextBoxElement implements ControlValueAccessor, OnInit {
   }
 
   private _handlePercentInput(value: any) {
-    let numberValue = this.parseNumber(value);
+    let numberValue = this.replaceDecimalPointAndParse(this.decimalPoint, value);
     let percent = Helpers.isEmpty(numberValue) ? null : Number((numberValue / 100).toFixed(6).replace(/\.?0*$/, ''));
     if (!Helpers.isEmpty(percent)) {
       this._setValue(percent, value);
@@ -122,10 +116,30 @@ export class NovoNumberTextBoxElement implements ControlValueAccessor, OnInit {
     }
   }
 
-  private parseNumber(value: any): number {
-    // replace decimal separator with period and parse
-    let parsedValue = value.replace(this.decimalPoint, '.');
-    parsedValue = parseFloat(parsedValue);
-    return parsedValue;
+  /**
+   * replace decimal separator with period and parse
+   */
+  private replaceDecimalPointAndParse(decimalPoint: string, value: any): any {
+    let parsedValue = value;
+    if (decimalPoint && decimalPoint !== '.' && value) {
+      parsedValue = parseFloat(value.replace(decimalPoint, '.'));
+    }
+    if (isNaN(Number(parsedValue))) {
+      return '';
+    } else {
+      return parsedValue;
+    }
+  }
+
+  get decimalPoint(): any {
+    return this._decimalPoint;
+  }
+
+  @Input()
+  set decimalPoint(value: any) {
+    if (value) {
+      this._decimalPoint = value;
+    }
+    this.numbersWithDecimalRegex = new RegExp('[0-9\\' + this.decimalPoint + ']');
   }
 }

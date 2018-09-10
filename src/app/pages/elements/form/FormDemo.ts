@@ -113,7 +113,7 @@ export class FormDemoComponent {
   private UpdatingFormDemoTpl: string = UpdatingFormDemoTpl;
   private AddressControlDemoTpl: string = AddressControlDemoTpl;
   private quickNoteConfig: any;
-  private euroCurrencyConfig: any;
+  private currencyConfigEuro: any;
   private textControl: any;
   private emailControl: any;
   private numberControl: any;
@@ -211,7 +211,7 @@ export class FormDemoComponent {
       },
     };
     // currency config2
-    this.euroCurrencyConfig = {
+    this.currencyConfigEuro = {
       decimalPoint: ',',
     };
     // Text-based Controls
@@ -245,7 +245,7 @@ export class FormDemoComponent {
       tooltip: 'Currency EUR',
       label: 'Currency EUR',
       currencyFormat: 'EUR',
-      config: this.euroCurrencyConfig,
+      config: this.currencyConfigEuro,
     });
     this.floatControl = new TextBoxControl({ type: 'float', key: 'float', tooltip: 'Float', label: 'Float' });
     this.percentageControl = new TextBoxControl({
@@ -261,7 +261,7 @@ export class FormDemoComponent {
       tooltip: 'Percent EUR',
       label: 'Percent EUR',
       required: true,
-      config: this.euroCurrencyConfig,
+      config: this.currencyConfigEuro,
     });
     this.quickNoteControl = new QuickNoteControl({
       key: 'note',
