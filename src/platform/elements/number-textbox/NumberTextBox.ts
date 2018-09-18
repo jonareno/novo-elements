@@ -4,6 +4,7 @@ import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 // App
 import { NovoLabelService } from '../../services/novo-label-service';
 import { Helpers } from '../../utils/Helpers';
+import { FormValidators } from '../form/FormValidators';
 
 // Value accessor for the component (supports ngModel)
 const NUMBER_TEXTBOX_VALUE_ACCESSOR = {
@@ -16,10 +17,10 @@ const NUMBER_TEXTBOX_VALUE_ACCESSOR = {
   selector: 'novo-number-textbox',
   providers: [NUMBER_TEXTBOX_VALUE_ACCESSOR],
   template: `
-    <input *ngIf="subType !== 'percentage'" type="text" [attr.name]="name" (keydown)="_handleKeydown($event)" 
-      (input)="_handleInput($event)" step="any" (mousewheel)="numberInput.blur()" #input data-automation-id="novo-number-textbox-input"/>
-    <input *ngIf="subType === 'percentage'" type="text" [attr.name]="name" (keydown)="_handleKeydown($event)" 
-      (input)="_handleInput($event, true)" [placeholder]="placeholder" step="any" (mousewheel)="percentInput.blur()" #percentInput data-automation-id="novo-number-textbox-input"/>
+    <input *ngIf="subType !== 'percentage'" type="text" [attr.name]="name" [class.maxlength-error]="invalidMaxlength" [class.invalid]="invalid" (keydown)="_handleKeydown($event)" 
+      (input)="_handleInput($event)" (mousewheel)="numberInput.blur()" #input data-automation-id="novo-number-textbox-input"/>
+    <input *ngIf="subType === 'percentage'" type="text" [attr.name]="name" [class.maxlength-error]="invalidMaxlength" [class.invalid]="invalid" (keydown)="_handleKeydown($event)"
+      (input)="_handleInput($event, true)" [placeholder]="placeholder" (mousewheel)="percentInput.blur()" #percentInput data-automation-id="novo-number-textbox-input"/>
   `,
 })
 export class NovoNumberTextBoxElement implements ControlValueAccessor {
@@ -32,12 +33,12 @@ export class NovoNumberTextBoxElement implements ControlValueAccessor {
   @Input()
   placeholder: string;
   @Input()
-  maxlength: number;
-  @Input()
   value: number;
 
-  private _decimalPoint: string = '.'; // defaults to period
+  private _decimalSeparator: string = '.'; // defaults to period
   private numbersWithDecimalRegex: any;
+  private invalidMaxlength: boolean = false;
+  private invalid: boolean = false;
 
   /** View -> model callback called when value changes */
   _onChange: (value: any) => void = () => {};
@@ -63,10 +64,12 @@ export class NovoNumberTextBoxElement implements ControlValueAccessor {
   _handleInput(event: KeyboardEvent, isPercent: boolean = false): void {
     if (document.activeElement === event.target) {
       let value = (event.target as HTMLInputElement).value;
+      let parsedValue = this.replaceDecimalSeperatorAndParse(this.decimalSeparator, value);
+      this.isInvalid(parsedValue, value.length);
       if (isPercent) {
-        this._handlePercentInput(value);
+        this._handlePercentInput(value, parsedValue);
       } else {
-        this._setValue(this.replaceDecimalPointAndParse(this.decimalPoint, value), value);
+        this._setValue(value, parsedValue);
       }
     }
   }
@@ -96,8 +99,8 @@ export class NovoNumberTextBoxElement implements ControlValueAccessor {
     this._onTouched = fn;
   }
 
-  private _setValue(value: any, displayValue: any) {
-    this.value = value;
+  private _setValue(displayValue: any, parsedValue: any) {
+    this.value = parsedValue;
     this._onChange(this.value);
     if (this.input && this.input.nativeElement) {
       // TODO: it's null when this is called through writeValue - need to figure out if this is a problem
@@ -106,9 +109,8 @@ export class NovoNumberTextBoxElement implements ControlValueAccessor {
     this._changeDetectorRef.markForCheck();
   }
 
-  private _handlePercentInput(value: any) {
-    let numberValue = this.replaceDecimalPointAndParse(this.decimalPoint, value);
-    let percent = Helpers.isEmpty(numberValue) ? null : Number((numberValue / 100).toFixed(6).replace(/\.?0*$/, ''));
+  private _handlePercentInput(value: any, parsedValue: any) {
+    let percent = Helpers.isEmpty(parsedValue) ? null : Number((parsedValue / 100).toFixed(6).replace(/\.?0*$/, ''));
     if (!Helpers.isEmpty(percent)) {
       this._setValue(percent, value);
     } else {
@@ -119,10 +121,10 @@ export class NovoNumberTextBoxElement implements ControlValueAccessor {
   /**
    * replace decimal separator with period and parse
    */
-  private replaceDecimalPointAndParse(decimalPoint: string, value: any): any {
+  private replaceDecimalSeperatorAndParse(decimalSeparator: string, value: any): any {
     let parsedValue = value;
-    if (decimalPoint && decimalPoint !== '.' && value) {
-      parsedValue = parseFloat(value.replace(decimalPoint, '.'));
+    if (decimalSeparator && decimalSeparator !== '.' && value) {
+      parsedValue = parseFloat(value.replace(decimalSeparator, '.'));
     }
     if (isNaN(Number(parsedValue))) {
       return '';
@@ -131,15 +133,45 @@ export class NovoNumberTextBoxElement implements ControlValueAccessor {
     }
   }
 
-  get decimalPoint(): any {
-    return this._decimalPoint;
+  private isInvalid(value: any, strLength: number) {
+    this.invalidMaxlength = false;
+    this.invalid = false;
+
+    if (strLength > 0 && (value === null || value === '')) {
+      this.invalid = true;
+      return;
+    }
+
+    switch (this.subType) {
+      case 'number':
+      case 'currency':
+        if (FormValidators.maxInteger({ value: value }) !== null) {
+          this.invalidMaxlength = true;
+        }
+        break;
+      case 'float':
+      case 'percentage':
+        if (FormValidators.maxDouble({ value: value }) !== null) {
+          this.invalidMaxlength = true;
+        }
+        break;
+      case 'year':
+        if (FormValidators.minYear({ value: value }) !== null) {
+          this.invalid = true;
+        }
+        break;
+    }
+  }
+
+  get decimalSeparator(): any {
+    return this._decimalSeparator;
   }
 
   @Input()
-  set decimalPoint(value: any) {
+  set decimalSeparator(value: any) {
     if (value) {
-      this._decimalPoint = value;
+      this._decimalSeparator = value;
     }
-    this.numbersWithDecimalRegex = new RegExp('[0-9\\' + this.decimalPoint + ']');
+    this.numbersWithDecimalRegex = new RegExp('[0-9\\' + this.decimalSeparator + ']');
   }
 }

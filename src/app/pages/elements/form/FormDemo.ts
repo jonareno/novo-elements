@@ -212,7 +212,7 @@ export class FormDemoComponent {
     };
     // currency config2
     this.currencyConfigEuro = {
-      decimalPoint: ',',
+      decimalSeparator: ',',
     };
     // Text-based Controls
     this.textControl = new TextBoxControl({
@@ -237,7 +237,7 @@ export class FormDemoComponent {
       key: 'currency',
       tooltip: 'Currency',
       label: 'Currency',
-      currencyFormat: 'USD',
+      currencyFormat: '$ USD',
     });
     this.currencyControlEuro = new TextBoxControl({
       type: 'currency',
@@ -271,7 +271,7 @@ export class FormDemoComponent {
       tooltip: 'Quicknote',
     });
     this.aceEditorControl = new AceEditorControl({ key: 'ace', label: 'CODE', tooltip: 'CODE', value: 'var i = 0;' });
-    this.textForm = formUtils.toFormGroup([
+    let textFormControls = [
       this.textControl,
       this.emailControl,
       this.textAreaControl,
@@ -283,7 +283,9 @@ export class FormDemoComponent {
       this.percentageControlEuro,
       this.quickNoteControl,
       this.aceEditorControl,
-    ]);
+    ];
+    this.textForm = formUtils.toFormGroup(textFormControls);
+    formUtils.setInitialValues(textFormControls, { currency: 12.25, currencyEuro: 12.35, aceEditorControl: 'testing ace editor' });
 
     // Check box controls
     this.checkControl = new CheckboxControl({ key: 'check', tooltip: 'Checkbox', label: 'Checkbox', checkboxLabel: 'Checkbox' });
